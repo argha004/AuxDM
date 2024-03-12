@@ -1,0 +1,102 @@
+for (const auto& atom : atoms) {
+        std::cout << "Atom Name: " << atom.name << "\n";
+        std::cout << "Coordinates (in atomic units): ";
+        for (const auto& coord : atom.coord) {
+            std::cout << coord << " ";
+        }
+        std::cout << "\n";
+        std::cout << "Basis File: " << atom.basisfile << "\n\n";
+}
+
+int atom_no = 1;
+std::cout << atoms[atom_no].name << std::endl;
+std::cout   << atoms[atom_no].coord[0] << ", "
+            << atoms[atom_no].coord[1] << ", "
+            << atoms[atom_no].coord[2]
+            << std::endl;
+std::cout << atoms[atom_no].basisfile << std::endl;
+
+
+
+std::cout << origin.size() << std::endl;;
+std::cout << qNumbers.size() << std::endl;;
+std::cout << alpha.size() << std::endl << std::endl;
+
+
+int count = 0;
+
+for (size_t i = 0; i < alpha.size(); i++) {
+    count +=1;
+    std::cout << count << " ";
+    for (size_t j = 3*i; j <= 3*i+2; j++) {
+        std::cout << origin[j] << " ";
+    }
+    std::cout << std::endl;
+    for (size_t j = 3*i; j <= 3*i+2; j++) {
+        std::cout << qNumbers[j] << " ";
+    }
+    // Print a newline every three numbers for better readability
+    std::cout << alpha[i] << " ";
+    std::cout << std::endl<< std::endl;
+}
+
+
+
+/*
+
+// Print the data to verify
+for (size_t i = 0; i < quadpts.size(); ++i) {
+    std::cout << quadpts[i] << " ";
+    // Print a newline every three numbers for better readability
+    if ((i + 1) % 3 == 0) std::cout << std::endl;
+}
+*/
+    auto grad_output = torch::ones_like(SF);
+    auto SF_x = torch::autograd::grad({SF}, {x_t, y_t, z_t},
+                                      /*grad_outputs=*/{grad_output},
+                                      /*retain_graph=*/c10::optional<bool>(true),
+                                      /*create_graph=*/true);
+
+
+    auto SF_y = torch::autograd::grad({SF}, {y_t}, {grad_output},
+                                        c10::optional<bool>(true), true)[0];
+    auto SF_z = torch::autograd::grad({SF}, {z_t}, {grad_output},
+                                        c10::optional<bool>(true), true)[0];
+
+    auto SF_xx = torch::autograd::grad({SF_x[0]}, {x_t}, {torch::ones_like(SF_x[0])},
+                                  c10::optional<bool>(true), true)[0];
+
+// Check if x_t requires grad
+        if (x_t.requires_grad()) {
+            std::cout << "x_t requires gradients." << std::endl;
+        } else {
+            std::cout << "x_t does not require gradients." << std::endl;
+        }
+
+        // Check if x_t requires grad
+        if (SF.requires_grad()) {
+            std::cout << "SF requires gradients." << std::endl;
+        } else {
+            std::cout << "SF does not require gradients." << std::endl;
+        }
+
+        // Check if x_t requires grad
+        if (SF_x[0].requires_grad()) {
+            std::cout << "SF_x requires gradients." << std::endl;
+        } else {
+            std::cout << "SF_x does not require gradients." << std::endl;
+        }
+
+        // Check if x_t requires grad
+        if (SF_y.requires_grad()) {
+            std::cout << "SF_y requires gradients." << std::endl;
+        } else {
+            std::cout << "SF_y does not require gradients." << std::endl;
+        }
+
+        // Check if x_t requires grad
+        if (SF_z.requires_grad()) {
+            std::cout << "SF_z requires gradients." << std::endl;
+        } else {
+            std::cout << "SF_z does not require gradients." << std::endl;
+        }
